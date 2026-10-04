@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 typedef double StackElem_t;
@@ -32,23 +33,23 @@ typedef struct Stack {
     Canary_t right_canary;
 } Stack;
 
-const Canary_t LEFT_CANARY_VALUE  = 0xDEAD80E3;
-const Canary_t RIGHT_CANARY_VALUE = 0xBADC0FFE;
-const StackElem_t POISON_VALUE = -666.0;
+static const Canary_t LEFT_CANARY_VALUE  = 0xDEAD80E3;
+static const Canary_t RIGHT_CANARY_VALUE = 0xBADC0FFE;
+static const StackElem_t POISON_VALUE = -666.0;
 
-static Canary_t *left_data_canary(Stack *stack) {
+static inline Canary_t *left_data_canary(Stack *stack) {
     return ((Canary_t *) stack->all_data) - 1;
 }
 
-static Canary_t *right_data_canary(Stack *stack) {
+static inline Canary_t *right_data_canary(Stack *stack) {
     return (Canary_t *) (stack->all_data + stack->capacity);
 }
 
-static size_t stack_memory_size(size_t capacity) {
+static inline size_t stack_memory_size(size_t capacity) {
     return sizeof(Canary_t) + capacity * sizeof(StackElem_t) + sizeof(Canary_t);
 }
 
-static StackError stack_error(Stack *stack) {
+static inline StackError stack_error(Stack *stack) {
     if (stack == NULL) {
         return STACK_NULL;
     }
@@ -80,7 +81,7 @@ static StackError stack_error(Stack *stack) {
     return STACK_OK;
 }
 
-static const char *stack_error_text(StackError error) {
+static inline const char *stack_error_text(StackError error) {
     switch (error) {
         case STACK_OK:
             return "STACK_OK";
@@ -109,11 +110,11 @@ static const char *stack_error_text(StackError error) {
     }
 }
 
-static bool stack_is_ok(Stack *stack) {
+static inline bool stack_is_ok(Stack *stack) {
     return stack_error(stack) == STACK_OK;
 }
 
-static StackError stack_activate(Stack *stack, size_t capacity) {
+static inline StackError stack_activate(Stack *stack, size_t capacity) {
     if (stack == NULL) {
         return STACK_NULL;
     }
@@ -145,7 +146,7 @@ static StackError stack_activate(Stack *stack, size_t capacity) {
     return STACK_OK;
 }
 
-static StackError stack_resize(Stack *stack, size_t new_capacity) {
+static inline StackError stack_resize(Stack *stack, size_t new_capacity) {
     StackError error = stack_error(stack);
     if (error != STACK_OK) {
         return error;
@@ -177,7 +178,7 @@ static StackError stack_resize(Stack *stack, size_t new_capacity) {
     return STACK_OK;
 }
 
-static StackError stack_push(Stack *stack, StackElem_t value) {
+static inline StackError stack_push(Stack *stack, StackElem_t value) {
     StackError error = stack_error(stack);
     if (error != STACK_OK) {
         return error;
@@ -201,7 +202,7 @@ static StackError stack_push(Stack *stack, StackElem_t value) {
     return STACK_OK;
 }
 
-static StackError stack_pop(Stack *stack, StackElem_t *result) {
+static inline StackError stack_pop(Stack *stack, StackElem_t *result) {
     StackError error = stack_error(stack);
     if (error != STACK_OK) {
         return error;
@@ -222,7 +223,7 @@ static StackError stack_pop(Stack *stack, StackElem_t *result) {
     return STACK_OK;
 }
 
-static StackError stack_destruct(Stack *stack) {
+static inline StackError stack_destruct(Stack *stack) {
     if (stack == NULL) {
         return STACK_NULL;
     }
@@ -238,7 +239,7 @@ static StackError stack_destruct(Stack *stack) {
     return STACK_OK;
 }
 
-static void stack_dump(Stack *stack, Print &out) {
+static inline void stack_dump(Stack *stack, Print &out) {
     out.println("========== STACK DUMP ==========");
 
     if (stack == NULL) {
