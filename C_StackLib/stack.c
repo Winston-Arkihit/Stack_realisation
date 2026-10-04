@@ -3,7 +3,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../../my_lib_func/Header_Only.h"
+#define STACK_ASSERT(condition)                                      \
+    do {                                                            \
+        if (!(condition)) {                                         \
+            fprintf(stderr, "STACK ASSERT ERROR: %s\n%s:%d\n",      \
+                    #condition, __FILE__, __LINE__);                \
+            abort();                                                \
+        }                                                           \
+    } while (0)
 
 //####CONST_BLOCK#######################################################
 const Canary_t LEFT_CANARY_VALUE  = 0xDEAD80E3; // <3
@@ -21,8 +28,8 @@ const unsigned long long HASH_MULTIPLIER = 1099511628211ULL;
 //####FUNCTIONS_BLOCK#################################################
 #ifdef STACK_USE_CANARIES
 static Canary_t *left_data_canary(Stack *stack) {
-    My_assert(stack != NULL);
-    My_assert(stack->all_data != NULL);
+    STACK_ASSERT(stack != NULL);
+    STACK_ASSERT(stack->all_data != NULL);
 
     return ((Canary_t *) stack->all_data) - 1;
 }
@@ -30,8 +37,8 @@ static Canary_t *left_data_canary(Stack *stack) {
 //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 static Canary_t *right_data_canary(Stack *stack) {
-    My_assert(stack != NULL);
-    My_assert(stack->all_data != NULL);
+    STACK_ASSERT(stack != NULL);
+    STACK_ASSERT(stack->all_data != NULL);
 
     return (Canary_t *) (stack->all_data + stack->capacity);
 }
@@ -66,8 +73,8 @@ static unsigned long long hash_bytes(unsigned long long hash, const void *data, 
 //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 static unsigned long long stack_count_hash(Stack *stack) {
-    My_assert(stack != NULL);
-    My_assert(stack->all_data != NULL);
+    STACK_ASSERT(stack != NULL);
+    STACK_ASSERT(stack->all_data != NULL);
 
     unsigned long long hash = HASH_START_VALUE;
 
@@ -96,8 +103,8 @@ static unsigned long long stack_count_hash(Stack *stack) {
 //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 static void stack_update_hash(Stack *stack) {
-    My_assert(stack != NULL);
-    My_assert(stack->all_data != NULL);
+    STACK_ASSERT(stack != NULL);
+    STACK_ASSERT(stack->all_data != NULL);
 
     stack->hash = stack_count_hash(stack);
 }
